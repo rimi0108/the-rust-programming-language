@@ -48,9 +48,64 @@
 //     // README에서 설명 계속..
 // }
 
+// fn main() {
+//     let s1 = String::from("hello");
+//     let s2 = s1;
+
+//     println!("{}, world!", s1);
+// }
+
+// // 소유권과 함수
+// fn main() {
+//     let s = String::from("hello"); // s가 스코프 안으로 들어왔다.
+//     takes_ownership(s); // s의 값이 함수 안으로 이동했다.
+//                         // 그리고 이제 더이상 유효하지 않다.
+//     let x = 5;  // x가 스코프 안으로 들어왔다.
+
+//     makes_copy(x);  // x가 함수 안으로 이동했지만, i32는 Copy가 
+//                     // 되므로, 이후에 계속 사용해도 된다.
+// } // 여기서 x는 스코프 밖으로 나가고, s도 그 후 나간다. 하지만 s는 이미
+//   // 이동되었으므로, 별다른 일이 발생하지 않는다.
+
+// fn takes_ownership(some_string: String) { // some_string이 스코프 안으로 들어왔다.
+//     println!("{}", some_string);
+// } // 여기서 some_string이 스코프 밖으로 벗어났고 `drop`이 호출된다. 메모리는 해제되었다.
+
+// fn makes_copy(some_integer: i32) { // some_integer가 스코프 안으로 들어왔다.
+//     println!("{}", some_integer);
+// } // 여기서 some_integer가 스코프 밖으로 벗어났다. 별다른 일은 발생하지 않는다.
+
+// fn main() {
+//     let s1 = gives_ownership(); // gives_ownership은 반환값을 s1에게 이동시킨다.
+    
+//     let s2 = String::from("hello"); // s2가 스코프 안에 들어왔다.
+
+//     let s3 = takes_and_gives_back(s2);  // s2는 takes_and_gives_back 안으로 이동되었고, 이 함수가 반환값을 s3으로도 이동시켰다.
+// } // 여기서 s3는 스코프 밖으로 벗어났으며 drop이 호출된다. s2는 스코프 밖으로 벗어났지만 이동되었으므로 아무 일도 일어나지 않는다. 
+//   // s1은 스코프 밖으로 벗어나서 drop이 호출된다.
+
+// fn gives_ownership() -> String {    // gives_ownership 함수가 반환 값을 호출한 쪽으로 이동시킨다.
+//     let some_string = String::from("hello");    // some_string이 스코프 안으로 들어왔다.
+
+//     some_string // some_string이 반환되고, 호출한 쪽의 함수로 이동한다.
+// }
+
+// fn takes_and_gives_back(a_string: String) -> String {   // a_string이 스코프 안으로 들어왔다.
+//     a_string    // a_string은 반환되고, 호출한 쪽의 함수로 이동된다.
+// }
+
 fn main() {
     let s1 = String::from("hello");
-    let s2 = s1;
 
-    println!("{}, world!", s1);
+    let (s2, len) = calculate_length(s1);
+
+    println!("The length of '{}' is {}.", s2, len);
 }
+
+fn calculate_length(s: String) -> (String, usize) {
+    let length = s.len();
+
+    (s, length)
+}
+// 위 코드는 너무 나간 절차이고 일반적인 개념으로는 과한 작업이 된다. 운좋게도, 러스트는
+// 이를 위한 기능을 갖고 있으며, 참조자(references)라고 부른다.
