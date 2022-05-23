@@ -23,3 +23,131 @@
 인스턴스는 반드시 `변경 가능(mutable)` 해야 한다. Rust에서는 특정 필드만 변경할 수 있도록 허용하지 않는다. 다른 표현식과 마찬가지로, 함수 본문의 마지막에 새 인스턴스 구조체를 표현식(expressions)로 생성하여 새 인스턴스를 바로 반환 할 수 있다.
 
 참조 코드에서는 주어진 `email`과 `user_name`으로 `User` 인스턴스를 반환하는 `build_user` 함수를 보여준다. 활성 필드는 `true` 값을 가져오고 `sign_in_count`는 `1` 값을 가져온다.
+
+```rust
+fn build_user(email: String, username: String) -> User {
+    User {
+        email: email,
+        username: username,
+        active: true,
+        sign_in_count: 1,
+    }
+}
+```
+
+위는 사용자의 이메일과 이름을 받아 `User` 구조체의 인스턴스를 반환하는 `build_user` 함수이다.
+
+구조체 필드와 동일한 이름으로 함수 매개 변수의 이름을 지정하는 것이 합리적이긴 하지만, `email` 및 `username` 필드 이름과 변수를 반복해야 하는 것은 비효율적이다. 구조체에 더 많은 필드가 많다면, 더욱 성가실 것이다. 
+
+### 변수명이 필드명과 같을 때 간단하게 필드 초기화하기
+
+변수명과 구조체의 필드명이 같다면, 필드 초기화 축약법(field init shorthand)를 이용할 수 있다. 이를 활용하면 구조체를 생성하는 함수를 더 간단히 작성할 수 있게 된다. 
+
+```rust
+fn build_user(email: String, username: String) -> User {
+    User {
+        email,
+        username,
+        active: true,
+        sign_in_count: 1,
+    }
+}
+```
+
+위 예제의 `build_user` 함수는 `email` 과 `username` 라는 매개변수가 있다. 함수는 `User` 구조체가 구현된 인스턴스를 반환한다.
+
+매개변수인 `email`과 `username`이 `User` 구조체의 필드명과 같이 때문에, `build_user` 에서 `email`과 `username`을 명시하는 부분을 다시 작성할 필요가 없다.
+
+필드 초기화를 이런 식으로 수행하는 문법은 간결한 코드를 작성하는데 도움이 되고, 많은 필드의 값이 정의되어야 할 때 특히 유용하다.
+
+`email` 필드와 `email` 매개 변수의 이름이 같기 때문에 `email:email` 대신 `email`만 작성하면 된다.
+
+### 구조체 갱신법을 이용하여 기존 구조체 인스턴스로 새 구조체 인스턴스 생성하기
+
+존재하는 인스턴스에서 기존 값의 대부분은 재사용하고, 몇몇 값만 바꿔 새로운 인스턴스를 정의하는 방법은 유용하다. 
+
+```rust
+let user2 = User {
+    email: String::from("hahaha@haha.com"),
+    username: String::from("hahah"),
+    active: user1.active,
+    sign_in_count: user1.sign_in_count,
+};
+```
+
+위 예제는 변수 `user2`에 `email`과 `username`은 새로 할당하고, 나머지 필드들은 위에서 정의한 `user1`의 값을 그대로 사용하는 방식으로 `User` 인스턴스를 생성하는 것을 보여준다.
+
+구조체 갱신법(struct update syntax)은, 입력으로 주어진 인스턴스와 변화하지 않는 필드들을 명시적으로 할당하지 않기 위해 `..` 구문을 사용한다.
+
+```rust
+let user2 = User {
+    email: String::from("another@example.com"),
+    username: String::from("anotherusername567"),
+    ..user1
+}
+```
+
+위는 인스턴스 갱신 문법의 사용 예이다. 새 `User` 구조체 생성 시 `email`과 `username` 필드에는 새 값을 할당하고, 나머지 필드는 `user1`에서 재사용한다.
+
+### 이름이 없고 필드마다 타입은 다르게 정의 가능한 튜플 구조체
+
+구조체명을 통해 의미를 부여할 수 있으나 필드의 타입만 정의할 수 있고 명명은 할 수 없는, 튜플 구조체(tuple structs)라 불리는 튜플과 유사한 형태의 구조체도 정의할 수 있다.
+
+튜플 구조체는 일반적인 구조체 정의방법과 똑같이 `struct` 키워드를 통해 정의할 수 있고, 튜플의 타입 정의가 키워드 뒤에서 이루어지면 된다. 
+
+```rust
+struct Color(i32, i32, i32);
+struct Point(i32, i32, i32);
+
+let black = Color(0, 0, 0);
+let origin = Point(0, 0, 0);
+```
+
+위는 다른 튜플 구조체이기 때문에, `black`과 `origin`이 다른 타입이라는 것을 유념해야 한다. 구조체 내의 타입이 모두 동일하더라도 각각의 구조체는 고유의 타입이기 때문이다.
+
+### 필드가 없는 유닛 구조체
+
+어떤 필드도 없는 구조체 역시 정의할 수 있다. 이는 유닛 타입인 `()`와 비슷하게 동작하고, 그 때문에 유사 유닛 구조체(unit-like structs)라 불린다. 유사 유닛 구조체는 특정한 타입의 트레잇(trait)을 구현해야지만 타입 자체에 데이터를 저장하지 않는 경우에 유용하다. 
+
+### 구조체 데이터의 소유권(Ownership)
+
+```rust
+struct User {
+    username: &str,
+    email: &str,
+    sign_in_count: u64,
+    active: bool,
+}
+
+fn main() {
+    let user1 = User {
+        email: "someone@example.com",
+        username: "someusername123",
+        active: true,
+        sign_in_count: 1,
+    };
+}
+```
+```
+error[E0106]: missing lifetime specifier
+ -->
+  |
+2 |     username: &str,
+  |               ^ expected lifetime parameter
+
+error[E0106]: missing lifetime specifier
+ -->
+  |
+3 |     email: &str,
+  |            ^ expected lifetime parameter
+```
+
+구조체 정의에서는 `&str` 문자 슬라이스 타입 대신 `String` 타입을 사용했다. 이는 의도적인 선택으로, 구조체 전체가 유효한 동안 구조체가 그 데이터를 소유하게 하고자 함이다. 
+
+구조체가 소유권이 없는 데이터의 참조를 저장할 수는 있지만, 라이프타임(lifetimes)의 사용을 전제로 한다. 라이프타임은 구조체가 존재하는 동안 참조하는 데이터를 계속 존재할 수 있도록 한다. 
+
+## 구조체를 이용한 예제 프로그램
+
+어느 시점에 구조체를 이용하기를 원하게 될지를 이해해보기 위해서, 사각형의 넓이를 계산하는 프로그램을 작성해 보자. 단일 변수들로 구성된 프로그램으로 시작한 뒤, 이 대신 구조체를 이용하기까지 프로그램을 리팩토링 해 볼 것이다.
+
+Cargo로 픽셀 단위로 명시된 사각형의 길이와 너비를 입력받아서 사각형의 넓이를 계산하는 rectangles라는 이름의 새로운 바이너리 프로젝트를 만든다.  
