@@ -77,6 +77,27 @@ mod network;
 // 이들은 완전히 다른 기능을 갖고 있을 수 있고, 서로 다른 모듈에 정의되어 있기 때문에
 // 함수 이름이 서로 부딪힐 일은 없다.
 
+mod outermost {
+    pub fn middle_function() {}
+
+    fn middle_secret_function() {}
+
+    mod inside {
+        pub fn inner_function() {}
+
+        fn secret_function() {}
+
+        secret_function()
+    }
+}
+
+fn try_me() {
+    outermost::middle_function();
+    outermost::middle_secret_function();
+    outermost::inside::inner_function();
+    outermost::inside::secret_function();
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
